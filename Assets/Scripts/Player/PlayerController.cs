@@ -38,15 +38,17 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
     private void Awake()
     {
         //_playerModle = GetComponentWi<PlayerModle>();
-        _PlayerModle.OnInit(OnFootStep);
+        //_PlayerModle.OnInit(OnFootStep);
         _stateMachine = new StateMachine();
         _stateMachine.Init(this);
         _characterController = GetComponent<CharacterController>();
+        
     }
 
     private void Start()
     {
         ChangeState(PlayerStateType.Idle);
+        
     }
 
     //public void Update()
@@ -55,6 +57,10 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
     //}
     public void ChangeState(PlayerStateType needState)
     {
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            
+        }
         
         switch (needState)
         {
@@ -117,10 +123,10 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
         
     }
 
-    private void OnFootStep()
-    {
-        _audioSource.PlayOneShot(footStepAudioClips[Random.Range(0, footStepAudioClips.Length)]);
-    }
+    //private void OnFootStep()
+    //{
+    //    _audioSource.PlayOneShot(footStepAudioClips[Random.Range(0, footStepAudioClips.Length)]);
+    //}
 
     public void OnJumpLoopComplete()
     {

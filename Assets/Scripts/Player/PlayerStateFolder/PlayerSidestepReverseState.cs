@@ -16,7 +16,7 @@ public class PlayerSidestepReverseState : PlayerStateBase
     {
         if (CheckAnimatorStateName("SidestepReverse", out float animTime))
         {
-            if (animTime > 0.5f)
+            if (animTime > 0.4f)
             {
                 UpdataGravity();
             }

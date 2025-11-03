@@ -952,7 +952,7 @@ MonoBehaviour:
   moveSpeedForJump: 4
   moveSpeedForAirDown: 4
   footStepAudioClips:
-  - {fileID: 8300000, guid: 38dcc6524ba67044aa56e57800d1b0ae, type: 3}
+  - {fileID: 8300000, guid: 75586e88e7422a2449b844e89a60f313, type: 3}
 --- !u!82 &1062267858
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1236,6 +1236,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26ebe3e3549b5bb44a2a9b051867af5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1368306019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1368306009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ecda973acb5a0b47a85f7bebf21eb2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1472523326
@@ -1639,6 +1651,81 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1549563090
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1549563091}
+  - component: {fileID: 1549563092}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1549563091
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549563090}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1549563092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1549563090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fc965b18b355ab4fbdaf61370700147, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundClips:
+  - name: RunStop
+    clip: {fileID: 8300000, guid: 8b79a4069353f134abf46d6d4a8eb431, type: 3}
+    volume: 0.742
+    pitch: 2
+    loop: 0
+  - name: FootStep
+    clip: {fileID: 8300000, guid: d0ea0372c3642064b9a8438f5d3eba77, type: 3}
+    volume: 0.58
+    pitch: 2
+    loop: 0
+  - name: JumpStart
+    clip: {fileID: 8300000, guid: 83914c18f713b5244b27c735964895f1, type: 3}
+    volume: 1
+    pitch: 2
+    loop: 0
+  - name: Sidestep
+    clip: {fileID: 8300000, guid: 1a821f55993b4ea4aba19db5cd8f1b5d, type: 3}
+    volume: 1
+    pitch: 2
+    loop: 0
+  - name: SidestepReverse
+    clip: {fileID: 8300000, guid: cf39e8264514328418d3dfd1f71d4d5a, type: 3}
+    volume: 1
+    pitch: 2
+    loop: 0
+  - name: WalkStop
+    clip: {fileID: 8300000, guid: d0ea0372c3642064b9a8438f5d3eba77, type: 3}
+    volume: 1
+    pitch: 1.153
+    loop: 0
 --- !u!1 &1818155179
 GameObject:
   m_ObjectHideFlags: 0
@@ -2825,6 +2912,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 383964963083006137, guid: a4726e412b9b02f4a9d4ec3dea514982, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1368306016}
+    - targetCorrespondingSourceObject: {fileID: 383964963083006137, guid: a4726e412b9b02f4a9d4ec3dea514982, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1368306019}
   m_SourcePrefab: {fileID: 100100000, guid: a4726e412b9b02f4a9d4ec3dea514982, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
@@ -2836,6 +2926,7 @@ SceneRoots:
   - {fileID: 8603729641094993365}
   - {fileID: 1818155180}
   - {fileID: 963546937}
+  - {fileID: 1549563091}
   - {fileID: 1944796094}
   - {fileID: 1472523329}
   - {fileID: 157001292}

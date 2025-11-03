@@ -71,16 +71,16 @@ ModelImporter:
       curves: []
       events:
       - time: 0
-        functionName: FootStep
-        data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 7e626bf251459594bafe54192d3da1a4, type: 3}
+        functionName: PlaySound
+        data: FootStep
+        objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
       - time: 0.5085158
-        functionName: FootStep
-        data: 
-        objectReferenceParameter: {fileID: 11500000, guid: 7e626bf251459594bafe54192d3da1a4, type: 3}
+        functionName: PlaySound
+        data: FootStep
+        objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0

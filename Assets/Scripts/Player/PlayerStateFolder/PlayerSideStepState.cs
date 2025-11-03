@@ -16,11 +16,11 @@ public class PlayerSideStepState : PlayerStateBase
     {
         if(CheckAnimatorStateName("Sidestep",out float animTime))
         {
-            if (animTime > 0.5f)
-            {
-                UpdataGravity();
-            }
-            if (animTime > 0.6f)
+            //if (animTime > 0.5f)
+            //{
+            //    UpdataGravity();
+            //}
+            if (animTime > 0.65f)
             {
                 _player.ChangeState(PlayerStateType.Idle);
             }

@@ -28,6 +28,8 @@ public class PlayerModle : MonoBehaviour
         rootMotionAction = null;
     }
 
+    
+
 
     #region 根运动
     private void OnAnimatorMove()
@@ -43,10 +45,11 @@ public class PlayerModle : MonoBehaviour
     #region 动画事件
 
     private Action footStepAction;
-    private void FootStep()
-    {
-        footStepAction?.Invoke();
-    }
+    private Action<string> runStopAction;
+    //private void FootStep()
+    //{
+    //    footStepAction?.Invoke();
+    //}
 
     //private void JumpAudio()
     //{

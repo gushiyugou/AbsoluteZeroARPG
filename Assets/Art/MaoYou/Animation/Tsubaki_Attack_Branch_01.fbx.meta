@@ -70,9 +70,9 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.21947326
-        functionName: FootStep
-        data: 
+      - time: 0.055969615
+        functionName: PlaySound
+        data: JumpStart
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0

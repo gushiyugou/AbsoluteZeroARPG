@@ -21,28 +21,26 @@ public class PlayerMoveState : PlayerStateBase
             {
                 case MoveChildState.Move:
                     _player.PlayAnimation("Move", 0.15f);
-                    //注册根运动s
-                    _player._PlayerModle.SetRootMotionAction(OnRootMotion);
+                    
                     break;
                 case MoveChildState.RunStop:
                     _player.PlayAnimation("RunStop",0.25f);
-                    _player._PlayerModle.ClearRootMotionAction();
                     break;
                 case MoveChildState.WalkStop:
                     _player.PlayAnimation("WalkStop",0.25f);
-                    _player._PlayerModle.ClearRootMotionAction();
                     break;
             }
         }
     }
-
-
-
     public override void Enter()
     {
-        _player._PlayerModle._Animator.applyRootMotion = true;
+        
+        //_player._PlayerModle._Animator.applyRootMotion = true;
+        //AudioManager.Instance.AddAudioClip("RunStop",)
         _player._PlayerModle.SetRootMotionAction(OnRootMotion);
         MoveState = MoveChildState.Move;
+        //注册根运动s
+        //_player._PlayerModle.SetRootMotionAction(OnRootMotion);
     }
 
     public override void Update()
