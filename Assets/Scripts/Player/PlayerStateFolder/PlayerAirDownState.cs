@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-
+#region 弃用
 //public class PlayerAirDownState : PlayerStateBase
 //{
 //    private enum AirDownChildState
@@ -153,7 +153,7 @@ using UnityEngine;
 //        }
 //    }
 //}
-
+#endregion
 public class PlayerAirDownState : PlayerStateBase
 {
     private enum AirDownChildState
@@ -162,12 +162,12 @@ public class PlayerAirDownState : PlayerStateBase
         End
     }
 
-    private float playerEndAnimationHeight = 1.1f;
-    private float endAnimationHeight = 0.2f;
+    private float playerEndAnimationHeight = 1.5f;
+    private float endAnimationHeight = 1.2f;
     private LayerMask groundLayerMask = LayerMask.GetMask("Env");
     private bool needEndAnimation;
     private bool checkEndAnimation;
-    private bool hasLoopAnimationCompleted;
+    //private bool hasLoopAnimationCompleted;
     private AirDownChildState airState;
     private AirDownChildState AirState
     {
@@ -175,7 +175,7 @@ public class PlayerAirDownState : PlayerStateBase
         set 
         {
             airState = value;
-            hasLoopAnimationCompleted = false;
+            //hasLoopAnimationCompleted = false;
             switch (airState)
             {
                 case AirDownChildState.Loop:
@@ -192,12 +192,15 @@ public class PlayerAirDownState : PlayerStateBase
     {
         _player._CharacterController.Move(new Vector3(0, _player._gravity * Time.deltaTime, 0));
         AirState = AirDownChildState.Loop;
+
         needEndAnimation = !Physics.Raycast(_player.transform.position + new Vector3(0, 0.5f, 0),
            Vector3.down, playerEndAnimationHeight, groundLayerMask);
-        hasLoopAnimationCompleted = false;
+           //hasLoopAnimationCompleted = false;
     }
+
     public override void Update()
     {
+        #region 状态混乱时的解决方案
         //Debug.Log("111111111111");
         //if (_player._stateMachine.CurrentStateType != typeof(PlayerAirDownState))
         //{
@@ -205,9 +208,13 @@ public class PlayerAirDownState : PlayerStateBase
         //}
         //CheckAnimatorStateName(airState.ToString(), out float animTime);
         //CheckLayerMask();
+        #endregion
+
         switch (airState)
         {
             case AirDownChildState.Loop:
+
+                #region 强条件检测，效果不好
 
                 //if (CheckAnimatorStateName("JumpLoop", out float loopTime))
                 //{
@@ -255,6 +262,9 @@ public class PlayerAirDownState : PlayerStateBase
                 //    }
                 //}
                 //break;
+                #endregion
+
+                #region 常规条件检测，效果较好
                 
                 if (needEndAnimation)
                 {
@@ -280,11 +290,13 @@ public class PlayerAirDownState : PlayerStateBase
                 }
                 AirControll();
                 break;
+            #endregion
+
             case AirDownChildState.End:
                 //_player._CharacterController.Move(Vector3.down*Time.deltaTime*9.8f);
                 if (CheckAnimatorStateName("JumpEnd",out float time))
                 {
-                    if (time >= 0.25f)
+                    if (time >= 0.15f)
                     {
                         if (!_player._CharacterController.isGrounded)
                         {
@@ -296,12 +308,15 @@ public class PlayerAirDownState : PlayerStateBase
                         }
 
                     }
-                    else if(time < 0.2f)
-                    {
+                    //else if(time < 0.5f)
+                    //{
 
-                        AirControll();
-                    }
+                    //    //AirControll();
+                    //    //SimpleAirControll();
+                    //}
                 }
+                //移动逻辑主要看游戏中具体效果，结合动画过渡时间
+                AirControll();
                 break;
         }
     }
@@ -325,28 +340,6 @@ public class PlayerAirDownState : PlayerStateBase
         }
         _player._CharacterController.Move(motion);
     }
-
-    private void SimpleAirControll()
-    {
-        float vertical = Input.GetAxis("Vertical");
-        float horizontal = Input.GetAxis("Horizontal");
-        Vector3 motion = new Vector3(0, _player._gravity * Time.deltaTime, 0);
-
-        if (vertical != 0 || horizontal != 0)
-        {
-            float y = Camera.main.transform.rotation.eulerAngles.y;
-            Vector3 input = new Vector3(horizontal, 0, vertical);
-            Vector3 targetDir = Quaternion.Euler(0, y, 0) * input;
-
-            motion.x = _player.moveSpeedForAirDown * Time.deltaTime * targetDir.x * 0.5f; // 降低移动速度
-            motion.z = _player.moveSpeedForAirDown * Time.deltaTime * targetDir.z * 0.5f;
-
-            _player._PlayerModle.transform.rotation = Quaternion.Slerp(_player._PlayerModle.transform.rotation,
-                Quaternion.LookRotation(targetDir), Time.deltaTime * _player._rotationSpeed * 0.5f);
-        }
-        _player._CharacterController.Move(motion);
-    }
-
 
     void CheckLayerMask()
     {

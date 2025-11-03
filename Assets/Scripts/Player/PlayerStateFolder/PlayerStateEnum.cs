@@ -4,4 +4,6 @@
     Moevment,
     Jump,
     AirDown,
+    Sidestep,
+    SidestepReverse
 }

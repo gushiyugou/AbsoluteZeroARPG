@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
     [SerializeField]private CharacterController _characterController;
     public CharacterController _CharacterController{ get => _characterController; }
 
-    public StateMachine _stateMachine;
+    private StateMachine _stateMachine;
     [SerializeField]private AudioSource _audioSource;
 
     #region ≈‰÷√–≈œ¢
@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
     //}
     public void ChangeState(PlayerStateType needState)
     {
+        
         switch (needState)
         {
             case PlayerStateType.Idle:
@@ -69,17 +70,24 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
             case PlayerStateType.AirDown:
                 _stateMachine.ChangeState<PlayerAirDownState>();
                 break;
+            case PlayerStateType.Sidestep:
+                _stateMachine.ChangeState<PlayerSideStepState>();
+                break;
+            case PlayerStateType.SidestepReverse:
+                _stateMachine.ChangeState<PlayerSidestepReverseState>();
+                break;
         }
     }
 
     public void PlayAnimation(string animationName,float fixedTransitionDuration = 0.25f)
     {
         _playerModle._Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
+        
     }
 
-    public void PlayAnimationImmediately(string animationName)
+    public void PlayAnimationImmediately(string animationName,int layer,int num)
     {
-        _PlayerModle._Animator.Play(animationName);
+        _PlayerModle._Animator.Play(animationName, layer,num);
     }
 
 

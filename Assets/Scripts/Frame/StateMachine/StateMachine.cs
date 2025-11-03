@@ -32,6 +32,7 @@ public class StateMachine
     /// <returns></returns>
     public bool ChangeState<T>(bool reCurrent = false) where T :StateBase,new()
     {
+        //PlayerStateBase.GetPerviousState(currentState);
         //如果当前状态与要切换的状态的类型一致，且不需要刷新，则不切换
         if (IsHasState && CurrentStateType == typeof(T) && !reCurrent) return false;
 

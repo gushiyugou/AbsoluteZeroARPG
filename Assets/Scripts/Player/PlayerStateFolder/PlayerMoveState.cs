@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
+﻿using UnityEngine;
 
 public class PlayerMoveState : PlayerStateBase
 {
@@ -31,11 +25,11 @@ public class PlayerMoveState : PlayerStateBase
                     _player._PlayerModle.SetRootMotionAction(OnRootMotion);
                     break;
                 case MoveChildState.RunStop:
-                    _player.PlayAnimation("RunStop");
+                    _player.PlayAnimation("RunStop",0.25f);
                     _player._PlayerModle.ClearRootMotionAction();
                     break;
                 case MoveChildState.WalkStop:
-                    _player.PlayAnimation("WalkStop");
+                    _player.PlayAnimation("WalkStop",0.25f);
                     _player._PlayerModle.ClearRootMotionAction();
                     break;
             }
@@ -46,30 +40,38 @@ public class PlayerMoveState : PlayerStateBase
 
     public override void Enter()
     {
-        
-        MoveState = MoveChildState.Move;
-
         _player._PlayerModle._Animator.applyRootMotion = true;
-        //mainCamera = Camera.main.transform;
+        _player._PlayerModle.SetRootMotionAction(OnRootMotion);
+        MoveState = MoveChildState.Move;
     }
 
     public override void Update()
     {
         _player._CharacterController.Move(new Vector3(0, _player._gravity * Time.deltaTime, 0));
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            switch (moveState)
+            {
+                case MoveChildState.Move:
+                    _player.ChangeState(PlayerStateType.Sidestep);
+                    break;
+                case MoveChildState.RunStop:
+                    _player.ChangeState(PlayerStateType.SidestepReverse);
+                    break;
+                case MoveChildState.WalkStop:
+                    _player.ChangeState(PlayerStateType.SidestepReverse);
+                    break;
+            }
+            
+            return;
+        }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             //通过控制速度状态的值来动态赋值jumpPower的值0
-            jumpPower = walkToRunTransition + 1;
+            moveStatePower = walkToRunTransition + 1;
             _player.ChangeState(PlayerStateType.Jump);
             return;
         }
-        if (!_player._CharacterController.isGrounded)
-        {
-            Debug.Log(_player._CharacterController.isGrounded);
-            _player.ChangeState(PlayerStateType.AirDown);
-            return;
-        }
-
         switch (moveState)
         {
             case MoveChildState.Move:
@@ -82,6 +84,15 @@ public class PlayerMoveState : PlayerStateBase
                 WalkStopOnUpdata();
                 break;
         }
+        //if (!_player._CharacterController.isGrounded)
+        //{
+        //    Debug.Log(_player._CharacterController.isGrounded);
+        //    moveStatePower = walkToRunTransition + 1;
+        //    _player.ChangeState(PlayerStateType.AirDown);
+        //    return;
+        //}
+
+
 
     }
 
@@ -94,15 +105,17 @@ public class PlayerMoveState : PlayerStateBase
         float rawH = Input.GetAxisRaw("Horizontal");
         float rawV = Input.GetAxisRaw("Vertical");
 
+
+        
+
         if (rawH == 0 && rawV == 0)
         {
-            if(walkToRunTransition < 0.5f)
+            if(walkToRunTransition < 0.4f)
             {
                 MoveState = MoveChildState.WalkStop;
-
                 return;
             }
-            else if (walkToRunTransition > 0.5f)
+            else if (walkToRunTransition > 0.6f)
             {
                 MoveState = MoveChildState.RunStop;
                 return;
@@ -139,6 +152,7 @@ public class PlayerMoveState : PlayerStateBase
                 //处理旋转的问题
                 Vector3 input = new Vector3(horizontal, 0, vertical);
                 float y = Camera.main.transform.eulerAngles.y;
+
                 //让四元数与向量相乘，表示让这个向量按照这个四元数所表达的角度进行旋转后得到新的向量
                 Vector3 targetDiretion = Quaternion.Euler(0, y, 0) * input;
                 _player._PlayerModle.transform.rotation = Quaternion.Slerp(
@@ -154,13 +168,19 @@ public class PlayerMoveState : PlayerStateBase
         
         if (CheckAnimatorStateName("RunStop",out float animationTime))
         {
-            if(animationTime >= 0.6f)
+            
+            if (animationTime >= 0.75f)
                 _player.ChangeState(PlayerStateType.Idle);
         }
     }
     private void WalkStopOnUpdata()
     {
-
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            //moveStatePower = 0;
+            _player.ChangeState(PlayerStateType.SidestepReverse);
+            return;
+        }
         if (CheckAnimatorStateName("WalkStop", out float animationTime))
         {
             if (animationTime >= 0.5f)
@@ -171,8 +191,7 @@ public class PlayerMoveState : PlayerStateBase
     {
         walkToRunTransition = 0f;
         _player._PlayerModle._Animator.speed = 1;
-        _player._PlayerModle._Animator.applyRootMotion = false;
-        //_player.StartCoroutine(DelayedDisableRootMotion());
+        _player._PlayerModle.ClearRootMotionAction();
     }
 
     //private IEnumerator DelayedDisableRootMotion()
@@ -181,8 +200,10 @@ public class PlayerMoveState : PlayerStateBase
     //    yield return new WaitForSeconds(0.1f);
     //    _player._PlayerModle._Animator.applyRootMotion = false;
     //}
+    
     private void OnRootMotion(Vector3 deltaPosition, Quaternion deltaRotation)
     {
+        deltaPosition.y = _player._gravity * Time.deltaTime;
         _player._CharacterController.Move(deltaPosition);
     }
 }

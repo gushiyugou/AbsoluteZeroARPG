@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// 在使用单个跳跃状态时，只需要将JumpStart动画换成一个完整的跳跃状态时的动画即可
+/// </summary>
 
 //public class PlayerJumpState : PlayerStateBase
 //{
@@ -63,76 +66,119 @@ public class PlayerJumpState : PlayerStateBase
 {
     private float velocity;
     Vector3 verticalDisplancement;
+    private LayerMask groundLayerMask = LayerMask.GetMask("Env");
 
     public override void Enter()
     {
+        #region 单跳跃状态
         //_player.PlayAnimation("Jump");
+        #endregion
+
+        #region 多跳跃状态
+
         velocity = _player.jumpStartSpeed;
         _player.PlayAnimation("JumpStart");
         _player._PlayerModle.SetRootMotionAction(OnRootMotion);
-        _player._CharacterController.detectCollisions = false;
+
+        #endregion
     }
 
     public override void Update()
     {
-        velocity -= _player._gravity * Time.deltaTime;
+        #region 重力模拟模块
+        bool isGrounded = Physics.SphereCast(_player.transform.position, 0.01f, Vector3.down, out RaycastHit hit, 0.02f, groundLayerMask);
+        if(!isGrounded)
+        {
+            velocity += _player._gravity * Time.deltaTime;
+            
+        }
+        else
+        {
+            velocity = 0;
+        }
+
         float displancement = velocity * Time.deltaTime;
         verticalDisplancement = new Vector3(0, displancement, 0);
         _player._CharacterController.Move(verticalDisplancement);
-        if (CheckAnimatorStateName("JumpStart", out float time) && time >= 0.9f)
-        {
-             _player.ChangeState(PlayerStateType.AirDown);
-        }
-        #region Jump动画只有一个,暂时不用
-        //AnimatorStateInfo stateInfo = _player._PlayerModle._Animator.GetCurrentAnimatorStateInfo(0);
-        //jump动画为一体的逻辑
-        //if(stateInfo.IsName("Jump"))
-        //{ 
-        //    float animationTime = stateInfo.normalizedTime;
-        //    //if(animationTime > 0.3f)
-        //    //{
-        //    //    _player.ChangeState(PlayerStateType.Idle);
-        //    //    return;
-        //    //}
-        //    if (animationTime > 0f && animationTime < 0.2f)
-        //    {
+        #endregion
 
-        //        float vertical = Input.GetAxis("Vertical");
-        //        float horizontal = Input.GetAxis("Horizontal");
-        //        if(vertical != 0 || horizontal != 0)
-        //        {
-        //            Vector3 input = new Vector3(horizontal, 0, vertical);
-        //            float y = Camera.main.transform.rotation.eulerAngles.y;
-        //            Vector3 targetDir = Quaternion.Euler(0, y, 0) * input;
-        //            _player._PlayerModle.transform.rotation = Quaternion.Slerp(_player._PlayerModle.transform.rotation,
-        //                Quaternion.LookRotation(targetDir), Time.deltaTime * _player._rotationSpeed);
-        //        }
-
-        //        //Vector3 direction = Camera.main.transform.TransformDirection(new Vector3(horizontal, 0, vertical));
-        //        //_player._CharacterController.Move(direction * Time.deltaTime * _player.moveSpeedForJump);
-        //    }
-        //    else if (animationTime >= 0.2f)
-        //    {
-        //        _player.ChangeState(PlayerStateType.Idle);
-        //        return;
-        //    }
+        #region 多跳跃状态
+        //跳跃分阶段时：空中持续、跳跃结束时的逻辑
+        //if (CheckAnimatorStateName("JumpStart", out float time) && time >= 0.9f)
+        //{
+        //     _player.ChangeState(PlayerStateType.AirDown);
         //}
+        #endregion
+
+
+        #region Jump动画只有一个,暂时不用
+        AnimatorStateInfo stateInfo = _player._PlayerModle._Animator.GetCurrentAnimatorStateInfo(0);
+        
+        //jump动画为一体的逻辑
+        if (stateInfo.IsName("JumpStart"))
+        {
+            float animationTime = stateInfo.normalizedTime;
+            //if(animationTime > 0.3f)
+            //{
+            //    _player.ChangeState(PlayerStateType.Idle);
+            //    return;
+            //}
+            if (animationTime > 0f && animationTime < 0.3f)
+            {
+
+                float vertical = Input.GetAxis("Vertical");
+                float horizontal = Input.GetAxis("Horizontal");
+                if (vertical != 0 || horizontal != 0)
+                {
+                    Vector3 input = new Vector3(horizontal, 0, vertical);
+                    float y = Camera.main.transform.rotation.eulerAngles.y;
+                    Vector3 targetDir = Quaternion.Euler(0, y, 0) * input;
+                    _player._PlayerModle.transform.rotation = Quaternion.Slerp(_player._PlayerModle.transform.rotation,
+                        Quaternion.LookRotation(targetDir), Time.deltaTime * _player._rotationSpeed);
+                }
+
+                Vector3 direction = Camera.main.transform.TransformDirection(new Vector3(horizontal, 0, vertical));
+                _player._CharacterController.Move(direction * Time.deltaTime * _player.moveSpeedForJump);
+            }
+            else if (animationTime >= 0.3f || isGrounded || _player._CharacterController.isGrounded)
+            {
+                _player.ChangeState(PlayerStateType.Idle);
+                return;
+            }
+        }
         #endregion
     }
     public override void Exit()
     {
+        //isJumping = false;
+        velocity = 0f;
+        verticalDisplancement = Vector3.zero;
+        //horizontalMotion = Vector3.zero;
         _player._PlayerModle.ClearRootMotionAction();
     }
 
     private void OnRootMotion(Vector3 deltaPosition, Quaternion deltaRotation)
     {
+        #region 多跳跃状态运动控制相关
+
+        ///*跳跃分阶段时：空中持续、跳跃结束时的角色运动相关逻辑*/
+        //Vector3 horizontalMotion = new Vector3(deltaPosition.x, verticalDisplancement.y, deltaPosition.z);
+        //Vector3 offset = moveStatePower * Time.deltaTime * _player.moveSpeedForJump * _player._PlayerModle.transform.forward;
+        //Debug.Log(offset);
+        //_player._CharacterController.Move(horizontalMotion + offset);
+        /*
+         */
+
+        #endregion
+
+
+        #region 单跳跃状态运动控制相关
+        //不分阶段
         //deltaPosition.y *= _player.jumpStartSpeed;
-        Vector3 horizontalMotion = new Vector3(deltaPosition.x, verticalDisplancement.y, deltaPosition.z);
-        Vector3 offset = jumpPower * Time.deltaTime * _player.moveSpeedForJump * _player._PlayerModle.transform.forward;
-        Debug.Log(offset);
-        _player._CharacterController.Move(horizontalMotion + offset);
-        //_player._CharacterController.Move(deltaPosition);
-        _player._CharacterController.detectCollisions = true;
+        //deltaPosition.y += verticalDisplancement.y;
+        _player._CharacterController.Move(deltaPosition);
+        #endregion
+
     }
 }
 
