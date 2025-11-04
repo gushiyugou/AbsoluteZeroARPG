@@ -5,5 +5,6 @@
     Jump,
     AirDown,
     Sidestep,
-    SidestepReverse
+    SidestepReverse,
+    AtkNormal1
 }

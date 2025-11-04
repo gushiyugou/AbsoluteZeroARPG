@@ -16,11 +16,15 @@ public class PlayerIdleState : PlayerStateBase
     public override void Update()
     {
         //UpdataGravity();
-        
-        
-        //TODO:检测攻击
 
-        //TODO:检测跳跃
+
+        //TODO:检测攻击
+        if (Input.GetMouseButtonDown(0))
+        {
+            _player.ChangeState(PlayerStateType.AtkNormal1);
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             moveStatePower = 0;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour,IStateMachineOwner
+public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
 {
     [SerializeField]private PlayerModle _playerModle;
     public PlayerModle _PlayerModle 
@@ -17,6 +17,10 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
 
     private StateMachine _stateMachine;
     [SerializeField]private AudioSource _audioSource;
+
+    //TODO 测试的配置信息，直接拖拽，后续会改
+    public SkillConfig _skillConfig;
+    public List<string> enemyTagList;
 
     #region 配置信息
     public readonly float _gravity = -9.8f;
@@ -38,7 +42,7 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
     private void Awake()
     {
         //_playerModle = GetComponentWi<PlayerModle>();
-        //_PlayerModle.OnInit(OnFootStep);
+        _PlayerModle.OnInit(OnFootStep,this, enemyTagList);
         _stateMachine = new StateMachine();
         _stateMachine.Init(this);
         _characterController = GetComponent<CharacterController>();
@@ -57,10 +61,10 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
     //}
     public void ChangeState(PlayerStateType needState)
     {
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
+        //if (Input.GetKeyDown(KeyCode.Y))
+        //{
             
-        }
+        //}
         
         switch (needState)
         {
@@ -81,6 +85,9 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
                 break;
             case PlayerStateType.SidestepReverse:
                 _stateMachine.ChangeState<PlayerSidestepReverseState>();
+                break;
+            case PlayerStateType.AtkNormal1:
+                _stateMachine.ChangeState<PlayerAtkNormal1State>();
                 break;
         }
     }
@@ -123,10 +130,10 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
         
     }
 
-    //private void OnFootStep()
-    //{
-    //    _audioSource.PlayOneShot(footStepAudioClips[Random.Range(0, footStepAudioClips.Length)]);
-    //}
+    private void OnFootStep()
+    {
+        //_audioSource.PlayOneShot(footStepAudioClips[Random.Range(0, footStepAudioClips.Length)]);
+    }
 
     public void OnJumpLoopComplete()
     {
@@ -138,5 +145,25 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner
                 ChangeState(PlayerStateType.Idle);
             }
         }
+    }
+
+    public void StartSkillHit(int weaponIndex)
+    {
+        
+    }
+
+    public void StopSkillHit(int weaponIndex)
+    {
+        
+    }
+
+    public void SkillCanSwitch()
+    {
+        
+    }
+
+    public void OnHit(IHurt target, Vector3 hitPosition)
+    {
+        Debug.Log("角色控制：我攻击到了" + ((Component)target).gameObject.name);
     }
 }

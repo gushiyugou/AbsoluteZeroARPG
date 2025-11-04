@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerModle : MonoBehaviour
@@ -7,10 +8,17 @@ public class PlayerModle : MonoBehaviour
     public Animator _Animator { get { return _animator; } }
     private Action<Vector3, Quaternion> rootMotionAction;
     //private CharacterController _controller;
+    private ISkillOwner skillOwner;
+    [SerializeField]private WeaponController[] weapons;
 
-    public void OnInit(Action footStepAction)
+    public void OnInit(Action footStepAction,ISkillOwner skillOwner, List<string> enemyTagList)
     {
         this.footStepAction = footStepAction;
+        this.skillOwner = skillOwner;
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            weapons[i].Init(enemyTagList, skillOwner.OnHit);
+        }
     }
 
     private void Awake()
@@ -56,6 +64,22 @@ public class PlayerModle : MonoBehaviour
     //    jumpAction?.Invoke();
     //}
 
+    private void StartSkillHit(int weaponIndex)
+    {
+        skillOwner.StartSkillHit(weaponIndex);
+        weapons[weaponIndex].StartSkillHit();
+    }
+
+    private void StopSkillHit(int weaponIndex)
+    {
+        skillOwner.StopSkillHit(weaponIndex);
+        weapons[weaponIndex].StopSkillHit();
+    }
+
+    private void SkillCanSwitch()
+    {
+        skillOwner.SkillCanSwitch();
+    }
 
 
     #endregion

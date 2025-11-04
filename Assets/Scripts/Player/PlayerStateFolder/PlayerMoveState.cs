@@ -34,7 +34,13 @@ public class PlayerMoveState : PlayerStateBase
     }
     public override void Enter()
     {
-        
+        //TODO Move状态下的攻击
+        if (Input.GetMouseButtonDown(0))
+        {
+            _player.ChangeState(PlayerStateType.AtkNormal1);
+            return;
+        }
+
         //_player._PlayerModle._Animator.applyRootMotion = true;
         //AudioManager.Instance.AddAudioClip("RunStop",)
         _player._PlayerModle.SetRootMotionAction(OnRootMotion);
@@ -46,6 +52,11 @@ public class PlayerMoveState : PlayerStateBase
     public override void Update()
     {
         _player._CharacterController.Move(new Vector3(0, _player._gravity * Time.deltaTime, 0));
+        if (Input.GetMouseButtonDown(0))
+        {
+            _player.ChangeState(PlayerStateType.AtkNormal1);
+            return;
+        }
         if (Input.GetKeyDown(KeyCode.C))
         {
             switch (moveState)
