@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     public AudioClip[] footStepAudioClips;
 
     #endregion
+    //ÍÏÎ²×é¼þ
+    [SerializeField] private MeleeWeaponTrail weaponTrail;
 
 
 
@@ -42,7 +44,7 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     private void Awake()
     {
         //_playerModle = GetComponentWi<PlayerModle>();
-        _PlayerModle.OnInit(OnFootStep,this, enemyTagList);
+        _PlayerModle.OnInit(this, enemyTagList);
         _stateMachine = new StateMachine();
         _stateMachine.Init(this);
         _characterController = GetComponent<CharacterController>();
@@ -130,7 +132,7 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
         
     }
 
-    private void OnFootStep()
+    public void OnFootStep()
     {
         //_audioSource.PlayOneShot(footStepAudioClips[Random.Range(0, footStepAudioClips.Length)]);
     }
@@ -149,12 +151,12 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
 
     public void StartSkillHit(int weaponIndex)
     {
-        
+        weaponTrail.Emit = true;
     }
 
     public void StopSkillHit(int weaponIndex)
     {
-        
+        weaponTrail.Emit = false;
     }
 
     public void SkillCanSwitch()

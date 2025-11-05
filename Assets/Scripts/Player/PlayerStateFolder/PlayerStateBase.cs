@@ -17,9 +17,17 @@ public class PlayerStateBase : StateBase
 
     protected virtual bool CheckAnimatorStateName(string stateName,out float normalizedTime)
     {
-        AnimatorStateInfo state = _player._PlayerModle._Animator.GetCurrentAnimatorStateInfo(0);
-        normalizedTime = state.normalizedTime;
-        return state.IsName(stateName);
+        AnimatorStateInfo nextState = _player._PlayerModle._Animator.GetNextAnimatorStateInfo(0);
+        if (nextState.IsName(stateName))
+        {
+            normalizedTime = nextState.normalizedTime;
+            return true;
+        }
+
+
+        AnimatorStateInfo currentState = _player._PlayerModle._Animator.GetCurrentAnimatorStateInfo(0);
+        normalizedTime = currentState.normalizedTime;
+        return currentState.IsName(stateName);
     }
 
     //主动运用重力

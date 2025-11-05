@@ -7,6 +7,7 @@ using UnityEngine;
 public class WeaponController : MonoBehaviour
 {
     [SerializeField]private new Collider collider;
+    
     private List<string> enemyTagList;
     private List<IHurt> enemyList = new List<IHurt>();
 
@@ -20,16 +21,19 @@ public class WeaponController : MonoBehaviour
         collider.enabled = false;
         this.enemyTagList = enemyTagList;   
         this.onHitAction = onHitAction;
+        //weaponTrail.Emit = false;
     }
 
     public void StartSkillHit()
     {
         collider.enabled = true;
+        //weaponTrail.Emit = true;
     }
 
     public void StopSkillHit()
     {
         collider.enabled = false;
+        //weaponTrail.Emit = false;
         enemyList.Clear();
     }
 

@@ -11,9 +11,9 @@ public class PlayerModle : MonoBehaviour
     private ISkillOwner skillOwner;
     [SerializeField]private WeaponController[] weapons;
 
-    public void OnInit(Action footStepAction,ISkillOwner skillOwner, List<string> enemyTagList)
+    public void OnInit(ISkillOwner skillOwner, List<string> enemyTagList)
     {
-        this.footStepAction = footStepAction;
+        
         this.skillOwner = skillOwner;
         for (int i = 0; i < weapons.Length; i++)
         {
@@ -52,12 +52,12 @@ public class PlayerModle : MonoBehaviour
 
     #region ¶¯»­ÊÂ¼þ
 
-    private Action footStepAction;
+    
     private Action<string> runStopAction;
-    //private void FootStep()
-    //{
-    //    footStepAction?.Invoke();
-    //}
+    private void FootStep()
+    {
+        skillOwner.OnFootStep();
+    }
 
     //private void JumpAudio()
     //{
