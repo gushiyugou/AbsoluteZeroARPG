@@ -1,11 +1,14 @@
+using Cinemachine;
 using NUnit.Framework.Constraints;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Search;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
 {
+    [Header("基础组件")]
     [SerializeField]private PlayerModle _playerModle;
     public PlayerModle _PlayerModle 
     { 
@@ -19,11 +22,16 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     [SerializeField]private AudioSource _audioSource;
 
     //TODO 测试的配置信息，直接拖拽，后续会改
-    public SkillConfig _skillConfig;
-    public List<string> enemyTagList;
+    //public SkillConfig _skillConfig;
+    
+    [Header("敌人Tag列表")]public List<string> enemyTagList;
+
+    
+
 
     #region 配置信息
     public readonly float _gravity = -9.8f;
+    [Space,Header("基础信息配置")]
     public float _rotationSpeed = 2f;
     public float walkToRunTransition = 1f;
     public float walkSpeed = 1f;
@@ -32,11 +40,18 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     public float jumpStartSpeed = 1f;
     public float moveSpeedForJump = 2f;
     public float moveSpeedForAirDown = 2f;
-    public AudioClip[] footStepAudioClips;
 
+    /// <summary>
+    /// 技能配置数组
+    /// </summary>
+    [Header("技能配置")]
+    public SkillConfig[] standAttckCongig;
     #endregion
     //拖尾组件
-    [SerializeField] private MeleeWeaponTrail weaponTrail;
+    [SerializeField,Header("拖尾插件")] private MeleeWeaponTrail weaponTrail;
+
+    public float TestValue = 0f;
+    public CinemachineImpulseSource impulseSource;
 
 
 
@@ -57,17 +72,21 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
         
     }
 
-    //public void Update()
-    //{
-    //    Debug.Log(_stateMachine.CurrentStateType);
-    //}
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            PostProcessingManager.Instance.ChromaticAberrationEF(TestValue);
+            
+        }
+    }
+
+    /// <summary>
+    /// 状态切换
+    /// </summary>
+    /// <param name="needState">需要切换的状态类型</param>
     public void ChangeState(PlayerStateType needState)
     {
-        //if (Input.GetKeyDown(KeyCode.Y))
-        //{
-            
-        //}
-        
         switch (needState)
         {
             case PlayerStateType.Idle:
@@ -94,12 +113,106 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
         }
     }
 
+    #region 技能相关
+    private SkillConfig currentSkillConfig;
+    private int currentHitIndex = 0;
+    //技能发起攻击
+    public void StartAttack(SkillConfig skillConfig)
+    {
+        
+        currentSkillConfig = skillConfig;
+        //表示是新技能的开始
+        currentHitIndex = 0;
+
+        //播放动画
+        PlayAnimation(currentSkillConfig.AnimationName);
+        //技能释放音效
+        PlayAudio(currentSkillConfig.releaseData.skillAudio);
+        //技能释放特效
+        SpawnSkillObject(currentSkillConfig.releaseData.spawnObj);
+        //击中检测
+
+        //伤害传递
+    }
+
+    //攻击发起时，（实际的攻击动作，去掉了前摇和后摇的时间）
+    public void StartSkillHit(int weaponIndex)
+    {
+        //技能释放音效
+        PlayAudio(currentSkillConfig.attackData[currentHitIndex].attackAudio[weaponIndex]);
+        //技能释放特效
+        SpawnSkillObject(currentSkillConfig.attackData[currentHitIndex].skillObj);
+        //特效释放
+        weaponTrail.Emit = true;
+        ScreenImpulse(TestValue);
+
+    }
+
+    //技能结束击中
+    public void StopSkillHit(int weaponIndex)
+    {
+        currentHitIndex += 1;
+        //如果用到了currentHitIndex，则currentHitIndex需要-1，也可以在攻击结束时，currentHitIndex+1
+        weaponTrail.Emit = false;
+    }
+
+    //技能后摇的部分
+    public void SkillCanSwitch()
+    {
+
+    }
+
+    public void OnHit(IHurt target, Vector3 hitPosition)
+    {
+        Debug.Log("角色控制：我攻击到了" + ((Component)target).gameObject.name);
+    }
+
+    private void SpawnSkillObject(SkillSpawnObj skillObj)
+    {
+        if (skillObj != null && skillObj.prefab != null)
+        {
+            StartCoroutine(DoSpawnObject(skillObj));
+        }
+    }
+
+    private IEnumerator DoSpawnObject(SkillSpawnObj skillObj)
+    {
+        
+        yield return new WaitForSeconds(skillObj.Time);
+        GameObject skillPrefab = Instantiate(skillObj.prefab,null);
+        skillPrefab.transform.position = _playerModle.transform.position + skillObj.position;
+        //使用eulerAngles(欧拉角)来进行计算,移动和旋转都是模型层在做
+        skillPrefab.transform.eulerAngles = _playerModle.transform.eulerAngles + skillObj.rotation;
+    }
+
+    #endregion
+
+
+    public void ScreenImpulse(float force)
+    {
+        impulseSource.GenerateImpulse(force * 0.2f);
+    }
+
+
+    /// <summary>
+    /// 播放动画
+    /// </summary>
+    /// <param name="animationName">动画名字</param>
+    /// <param name="fixedTransitionDuration">过渡时间</param>
     public void PlayAnimation(string animationName,float fixedTransitionDuration = 0.25f)
     {
         _playerModle._Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
         
     }
 
+
+
+    /// <summary>
+    /// 立即播放动画
+    /// </summary>
+    /// <param name="animationName">动画名字</param>
+    /// <param name="layer">动画的层级</param>
+    /// <param name="num">开始播放的帧数</param>
     public void PlayAnimationImmediately(string animationName,int layer,int num)
     {
         _PlayerModle._Animator.Play(animationName, layer,num);
@@ -124,6 +237,10 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
         _PlayerModle._Animator.CrossFade(targetAnimation, transitionDuration);
     }
 
+
+    /// <summary>
+    /// 动画回调事件
+    /// </summary>
     private void OnAnimatorMove()
     {
         // 应用根运动位移
@@ -135,6 +252,13 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     public void OnFootStep()
     {
         //_audioSource.PlayOneShot(footStepAudioClips[Random.Range(0, footStepAudioClips.Length)]);
+    }
+
+    public void PlayAudio(AudioClip audioClip)
+    {
+        if(audioClip != null) 
+            _audioSource.PlayOneShot(audioClip);
+        
     }
 
     public void OnJumpLoopComplete()
@@ -149,23 +273,5 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
         }
     }
 
-    public void StartSkillHit(int weaponIndex)
-    {
-        weaponTrail.Emit = true;
-    }
-
-    public void StopSkillHit(int weaponIndex)
-    {
-        weaponTrail.Emit = false;
-    }
-
-    public void SkillCanSwitch()
-    {
-        
-    }
-
-    public void OnHit(IHurt target, Vector3 hitPosition)
-    {
-        Debug.Log("角色控制：我攻击到了" + ((Component)target).gameObject.name);
-    }
+    
 }
