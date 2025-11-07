@@ -3,6 +3,7 @@ using NUnit.Framework.Constraints;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor.Search;
 using UnityEngine;
 
@@ -41,16 +42,18 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     public float moveSpeedForJump = 2f;
     public float moveSpeedForAirDown = 2f;
 
+    public float rotSpeed = 1f;
+
     /// <summary>
     /// 技能配置数组
     /// </summary>
     [Header("技能配置")]
     public SkillConfig[] standAttckCongig;
+    public int currentHitWeapIndex;
     #endregion
     //拖尾组件
     [SerializeField,Header("拖尾插件")] private MeleeWeaponTrail weaponTrail;
 
-    public float TestValue = 0f;
     public CinemachineImpulseSource impulseSource;
 
 
@@ -70,15 +73,6 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     {
         ChangeState(PlayerStateType.Idle);
         
-    }
-
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            PostProcessingManager.Instance.ChromaticAberrationEF(TestValue);
-            
-        }
     }
 
     /// <summary>
@@ -138,14 +132,13 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
     //攻击发起时，（实际的攻击动作，去掉了前摇和后摇的时间）
     public void StartSkillHit(int weaponIndex)
     {
+        currentHitWeapIndex = weaponIndex;
         //技能释放音效
-        PlayAudio(currentSkillConfig.attackData[currentHitIndex].attackAudio[weaponIndex]);
+        PlayAudio(currentSkillConfig.attackData[currentHitIndex].attackAudio[currentHitWeapIndex]);
         //技能释放特效
         SpawnSkillObject(currentSkillConfig.attackData[currentHitIndex].skillObj);
         //特效释放
         weaponTrail.Emit = true;
-        ScreenImpulse(TestValue);
-
     }
 
     //技能结束击中
@@ -164,7 +157,36 @@ public class PlayerController : MonoBehaviour,IStateMachineOwner,ISkillOwner
 
     public void OnHit(IHurt target, Vector3 hitPosition)
     {
-        Debug.Log("角色控制：我攻击到了" + ((Component)target).gameObject.name);
+        //Debug.Log("角色控制：我攻击到了" + ((Component)target).gameObject.name);
+        //OnHit在Stop之后执行，所以索引要减一
+        Debug.Log(currentHitIndex);
+        SkillAttackData skillData = currentSkillConfig.attackData[currentHitIndex];
+        StartCoroutine(DoSkillEffect(skillData.hitEffect, hitPosition));
+
+        //后处理,色差效果
+        if(skillData.impulseValue != 0)
+            ScreenImpulse(skillData.impulseValue);
+        if (skillData.chromaticValue != 0)
+            PostProcessingManager.Instance.ChromaticAberrationEF(skillData.chromaticValue);
+        //TODO:对IHurt传递伤害数据
+
+    }
+
+    //技能击中时的效果
+    private IEnumerator DoSkillEffect(SkillHitEffectConfig hitEffetc, Vector3 pos)
+    {
+        if (hitEffetc == null) yield break;
+        PlayAudio(hitEffetc.skillSpawnObj.spawnAudio);
+        
+        if (hitEffetc != null && hitEffetc.skillSpawnObj != null)
+        {
+            yield return new WaitForSeconds(hitEffetc.skillSpawnObj.Time);
+            GameObject temp = Instantiate(hitEffetc.skillSpawnObj.prefab);
+            temp.transform.position = pos + hitEffetc.skillSpawnObj.position;
+            temp.transform.LookAt(Camera.main.transform);
+            temp.transform.eulerAngles = pos + hitEffetc.skillSpawnObj.rotation;
+            PlayAudio(hitEffetc.hitAudioClip);
+        }
     }
 
     private void SpawnSkillObject(SkillSpawnObj skillObj)

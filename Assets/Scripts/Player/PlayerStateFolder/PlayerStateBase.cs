@@ -67,4 +67,30 @@ public class PlayerStateBase : StateBase
     {
         return _player._PlayerModle._Animator.applyRootMotion;
     }
+
+
+
+    #region 获取到鼠标在世界坐标系下的水平方向向量
+    protected Vector3 GetMouseWorldDirection()
+    {
+        Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Plane groundPlane = new Plane(Vector3.up, _player._PlayerModle.transform.position);
+        float enter;
+
+        if (groundPlane.Raycast(mouseRay, out enter))
+        {
+            Vector3 worldPoint = mouseRay.GetPoint(enter);
+            Vector3 direction = (worldPoint - _player._PlayerModle.transform.position).normalized;
+            direction.y = 0;
+            return direction;
+        }
+
+        return _player._PlayerModle.transform.forward;
+    }
+
+
+    
+
+
+    #endregion
 }
